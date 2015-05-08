@@ -1,10 +1,10 @@
-#------------------------------------------
+# ------------------------------------------
 # Name:     tasklist
 # Purpose:  Class for the creation/management of tasks
 #
 # Author:   Robin Siebler
 # Created:  7/14/13
-#------------------------------------------
+# ------------------------------------------
 __author__ = 'Robin Siebler'
 __date__ = '7/14/13'
 
@@ -45,6 +45,7 @@ class Task:
 
         return search_string in self.task.lower() or search_string in self.tags.lower()
 
+
 class TaskList:
 
     def __init__(self):
@@ -68,7 +69,7 @@ class TaskList:
         :param task_id: id of the task to delete
         """
 
-        task = self._find_task(task_id)
+        task = self.find_task(task_id)
         if task:
             self.tasks.remove(task)
 
@@ -81,7 +82,7 @@ class TaskList:
 
         return [task for task in self.tasks if task.match(search_string)]
 
-    def _find_task(self, task_id):
+    def find_task(self, task_id):
         """Find a task by task.id
 
         :param task_id: The task.id for the task to find.
@@ -92,7 +93,7 @@ class TaskList:
                 return task
         return None
 
-    def _renumber_tasks(self):
+    def renumber_tasks(self):
         """Renumber all of the tasks. Useful when a task is deleted."""
 
         if len(self.tasks) > 0:

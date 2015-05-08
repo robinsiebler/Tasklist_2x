@@ -4,7 +4,7 @@
 #
 # Author:   Robin Siebler
 # Created:  5/6/15
-#------------------------------------------
+# ------------------------------------------
 __author__ = 'Robin Siebler'
 __date__ = '5/6/15'
 
@@ -12,10 +12,10 @@ import arrow
 import util
 from tasklist import Task, TaskList
 from collections import OrderedDict
-import sys
 
-from colorama import init, Fore, Back, Style
+from colorama import init, Fore, Style  # , Back
 init()
+
 
 class Functions:
 	def __init__(self):
@@ -43,7 +43,7 @@ class Functions:
 				elif task.priority == 'M':
 					priority = Fore.BLUE + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
 				elif task.priority == 'H':
-					priority = Fore.RED +  Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
+					priority = Fore.RED + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
 				else:
 					priority = ''
 
@@ -54,7 +54,6 @@ class Functions:
 						due_date = arrow.get(task.due_date, task.due_date_format).humanize()
 					else:
 						due_date = task.due_date
-
 
 				if date_format:
 					age = arrow.get(task.creation_date, 'MM/DD/YYYY hh:mm:ss A ZZ').humanize()
@@ -71,7 +70,6 @@ class Functions:
 
 		else:
 			print('\nThere are no tasks to display!\n')
-
 
 	def show_tasks_by_priority(self, tasks=None):
 		"""Display the tasks (in Priority order)
@@ -120,7 +118,6 @@ class Functions:
 		else:
 			print('There are no low priority tasks!\n')
 
-
 	def search_tasks(self):
 		"""Search the task list for a task whose note or tag contains the user provided search string."""
 
@@ -131,12 +128,10 @@ class Functions:
 		else:
 			print('\nThere were no tasks containing "{}".\n'.format(search_string))
 
-
 	def add_task(self, task, priority=None, due_date=None, tags=None, note=None):
 		"""Add a new task."""
 
 		self.tasklist.add_task(task, priority, due_date, tags, note)
-
 
 	def delete_task(self):
 		"""Delete a task."""
@@ -144,49 +139,8 @@ class Functions:
 		task_id = self._validate_task_id('delete: ')
 		if task_id:
 			self.tasklist.delete_task(task_id)
-			self.tasklist._renumber_tasks()
+			self.tasklist.renumber_tasks()
 			print('The task was deleted.')
-
-
-	def modify_task(self):
-		"""Change one of the fields of a task. The user is prompted with the available choices."""
-
-		task_id = self._validate_task_id('modify: ')
-		if task_id:
-			choice = None
-			while not choice:
-				choice = raw_input('What do you wish to modify? (T)ask, (P)riority or T(a)gs: ').title()
-				if choice not in ['T', 'P', 'A'] and choice not in ['Task', 'Priority', 'Tags']:
-					print ('{} is not a valid choice.'.format(choice))
-					choice = None
-
-			task = self.tasklist._find_task(task_id)
-			if choice is 'T' or choice is 'Task':
-				task.note = raw_input('Enter a task: ')
-			elif choice is 'P' or choice is 'Priority':
-				task.priority = self._get_priority()
-			elif choice is 'A' or choice is 'Tags':
-				task.tags = raw_input('Enter the tag(s) for your task: ')
-
-
-	def run(self):
-		"""Display the menu and invoke the desired action."""
-
-		self.show_menu()
-		while True:
-			choice = raw_input('\nEnter an option ("9" will re-display the menu): ')
-			action = self.choices.get(choice)
-			if action:
-				action()
-			else:
-				print('\n{} is not a valid option!\n'.format(choice))
-
-
-	def quit(self):
-		"""Exit the app."""
-
-		sys.exit(0)
-
 
 	def load_tasks(self, task_file):
 		"""Load the task file and retrieve the tasks."""
@@ -194,35 +148,10 @@ class Functions:
 		self.tasklist.tasks = util.load(task_file)
 		Task.last_id = len(self.tasklist.tasks)
 
-
 	def save_tasks(self, task_file):
 		"""Save the task file."""
 
 		util.save(self.tasklist.tasks, task_file)
-
-
-	def _get_priority(self):
-		"""Prompt the user for a priority for a task.
-
-		:return: string containing a valid priority
-		"""
-
-		priority = None
-		while not priority:
-			priority = raw_input('Enter a priority for the task - (valid options are (L)ow, (M)edium and (H)igh: ').title()
-			if priority not in ['L', 'M', 'H'] and priority not in ['Low', 'Medium', 'High']:
-				print('{} is not a valid option'.format(priority))
-				priority = None
-
-		if priority == 'L':
-			priority = 'Low'
-		elif priority == 'M':
-			priority = 'Medium'
-		elif priority == 'H':
-			priority = 'High'
-
-		return priority
-
 
 	def _validate_task_id(self, prompt):
 		"""Prompt the user for a task ID and validate it.

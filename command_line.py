@@ -12,7 +12,7 @@ Usage: tasks.py [<Task>] [-a] [-p=<Priority>] [-d=<Due_Date>] [-n=<Note>]
     Arguments:
         Task                    The task to add (20 chars in length)
 
-	Options:
+    Options:
         -h --help               Show this screen.
         -a                      Display absolute dates
         -d <Due_Date>           Date the task is due (Date must contain /, not . or -)
