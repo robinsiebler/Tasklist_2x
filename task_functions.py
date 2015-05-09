@@ -74,7 +74,7 @@ class Functions:
 		else:
 			print('\nThere are no tasks to display!\n')
 
-	def show_tasks_by_priority(self, tasks=None):
+	def show_tasks_by_priority(self, tasks=None, date_format=None):
 		"""Display the tasks (in Priority order)
 
 		:param tasks: tasks object
@@ -83,6 +83,7 @@ class Functions:
 		low_dict = OrderedDict()
 		med_dict = OrderedDict()
 		high_dict = OrderedDict()
+		no_dict = OrderedDict()
 
 		if not tasks:
 			tasks = self.tasklist.tasks
@@ -90,36 +91,86 @@ class Functions:
 		if len(tasks) > 0:
 			print('\nTasks:\n')
 			for task in tasks:
-				if task.priority == 'Low':
-					low_dict[task.id] = [task.note, task.priority, task.tags]
-				if task.priority == 'Medium':
-					med_dict[task.id] = [task.note, task.priority, task.tags]
-				if task.priority == 'High':
-					high_dict[task.id] = [task.note, task.priority, task.tags]
+
+				if task.due_date is None:
+					due_date = ''
+				else:
+					if date_format:
+						due_date = task.due_date
+					else:
+						due_date = arrow.get(task.due_date, task.due_date_format).humanize()
+
+				if date_format:
+					age = str(task.creation_date).split()[0]
+				else:
+					age = arrow.get(task.creation_date, 'MM/DD/YYYY hh:mm:ss A ZZ').humanize()
+
+				if task.note:
+					desc = task.task + ' *'
+				else:
+					desc = task.task
+
+				if task.priority == 'L':
+					priority = Fore.YELLOW + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
+					low_dict[task.id] = [priority, due_date, age, desc, task.tags]
+				elif task.priority == 'M':
+					priority = Fore.BLUE + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
+					med_dict[task.id] = [priority, due_date, age, desc, task.tags]
+				elif task.priority == 'H':
+					priority = Fore.RED + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
+					high_dict[task.id] = [priority, due_date, age, desc, task.tags]
+				else:
+					priority = ''
+					no_dict[task.id] = [priority, due_date, age, desc, task.tags]
 		else:
 			print('\nThere are no tasks to display!\n')
 			return
 
-		print('High\n' + '-' * 20)
+		template = '{0:^3} {1:^3} {2:15} {3:15} {4:20} {5:20}'
+		print template.format('\nPri', 'ID', 'Due', 'Created', 'Description', 'Tags')
+		print template.format('---', '---', '---------------', '---------------', '--------------------',
+		                      '--------------------')
+
 		if len(high_dict) > 0:
 			for key in high_dict:
-				print('{}: {}\n\tTags: {}\n'.format(key, high_dict[key][0], high_dict[key][2]))
-		else:
-			print('There are no high priority tasks\n')
-
-		print('Medium\n' + '-' * 20)
+				print template.format(high_dict[key][0], key, high_dict[key][1], high_dict[key][2], 
+				                      high_dict[key][3], high_dict[key][4])
 		if len(med_dict) > 0:
 			for key in med_dict:
-				print('{}: {}\n\tTags: {}\n'.format(key, med_dict[key][0], med_dict[key][2]))
-		else:
-			print('There are no medium priority tasks\n')
-
-		print('Low\n' + '-' * 20)
+				print template.format(med_dict[key][0], key, med_dict[key][1], med_dict[key][2], 
+				                      med_dict[key][3], med_dict[key][4])
 		if len(low_dict) > 0:
 			for key in low_dict:
-				print('{}: {}\n\tTags: {}\n'.format(key, low_dict[key][0], low_dict[key][2]))
-		else:
-			print('There are no low priority tasks!\n')
+				print template.format(low_dict[key][0], key, low_dict[key][1], low_dict[key][2], 
+				                      low_dict[key][3], low_dict[key][4])
+		if len(no_dict) > 0:
+			for key in no_dict:
+				print template.format(no_dict[key][0], key, no_dict[key][1], no_dict[key][2], 
+				                      no_dict[key][3], no_dict[key][4])
+
+	def show_task(self, task_id):
+		"""Display the specified task, including its notes, if any.
+
+		:param str task_id: the task_id of the task.
+		"""
+
+		task_id = self._validate_task_id(task_id)
+		if task_id:
+			task = self.tasklist.find_task(task_id)
+			if task:
+				if task.priority == 'L':
+					priority = Fore.YELLOW + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
+				elif task.priority == 'M':
+					priority = Fore.BLUE + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
+				elif task.priority == 'H':
+					priority = Fore.RED + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
+				else:
+					priority = ''
+				template = '{0:^3} {1:^3} {2:20} {3:40}'
+				print template.format('\nID', ' Pri', 'Description', 'Note')
+				print template.format('---', '---', '--------------------',
+				                      '----------------------------------------')
+				print template.format(task.id, priority, task.task, task.note)
 
 	def search_tasks(self):
 		"""Search the task list for a task whose note or tag contains the user provided search string."""
@@ -143,7 +194,7 @@ class Functions:
 		if task_id:
 			self.tasklist.delete_task(task_id)
 			self.tasklist.renumber_tasks()
-			print('The task was deleted.')
+			print('Task ' + task_id + ' was deleted.')
 
 	def modify_task(self, task_id, task_=None, priority=None, due_date=None, note=None, tags=None):
 		"""Modify a task."""
@@ -151,19 +202,19 @@ class Functions:
 		task_id = self._validate_task_id(task_id)
 		if task_id:
 			task = self.tasklist.find_task(task_id)
-		if task:
-			print 'Modifying task ' + str(task_id) + ': ' + task.task
-			if task_:
-				task.task = task_
-			elif priority:
-				task.priority = priority
-			elif due_date:
-				task.due_date = due_date
-			elif note:
-				task.note = note
-			elif tags:
-				task.tags = tags
-			print 'Modified task ' + str(task_id)
+			if task:
+				print 'Modifying task ' + str(task_id) + ': ' + task.task
+				if task_:
+					task.task = task_
+				elif priority:
+					task.priority = priority
+				elif due_date:
+					task.due_date = due_date
+				elif note:
+					task.note = note
+				elif tags:
+					task.tags = tags
+				print 'Modified task ' + str(task_id)
 
 	def load_tasks(self, task_file):
 		"""Load the task file and retrieve the tasks."""

@@ -8,19 +8,24 @@
 # ------------------------------------------
 
 """
-Usage: tasks.py [<Task>] [-a] ([-p <Priority>] [-d <Due_Date>] [-n <Note>] [-t <Tags>]) | [-r <Task_ID>]
+Usage: tasks.py priority [-a]
+	   tasks.py display <Task_ID>
 	   tasks.py modify <Task_ID> ([<Task>] | [-p <Priority>] | [-d <Due_Date>] | [-n <Note>] | [-t <Tags>])
+	   tasks.py [<Task>] [-a] ([-p <Priority>] [-d <Due_Date>] [-n <Note>] [-t <Tags>]) | [-r <Task_ID>]
+
 
 	Commands:
-		modify <Task_ID>        The task to modify followed by the updated information
+		display <Task_ID>       Display the note for a Task. This allows you to add more info to a task
+		modify <Task_ID>        The Task to modify followed by the updated information
+		priority                Display the Tasks in priority order
 
     Arguments:
-        Task                    The task to add (20 chars in length)
+        Task                    The task to add (Only 20 chars will be displayed)
 
     Options:
         -h --help               Show this screen.
         -a                      Display absolute dates
-        -d <Due_Date>           Date the task is due (Date must contain /, not . or -)
+        -d <Due_Date>           Date the task is due (Ex: M/D/YY, MM-DD-YYYY, MM.DD.YY)
         -n <Note>               A lengthier description of the task
         -p <Priority>           Priority - L, M, H (Low, Medium or High)
         -r <Task_ID>            Remove a task
@@ -30,7 +35,7 @@ Usage: tasks.py [<Task>] [-a] ([-p <Priority>] [-d <Due_Date>] [-n <Note>] [-t <
 """
 
 # TODO: Add coloring to task if it is: a) due in a week or less or b) due today.
-# TODO: Add command to display note
+# TODO: Add command to search
 
 __author__ = 'Robin Siebler'
 __date__ = '5/6/15'
@@ -52,20 +57,29 @@ def validate_args(docopt_args):
 	if docopt_args['-p']:
 		docopt_args['-p'] = docopt_args['-p'].upper()
 		if docopt_args['-p'] not in ['L', 'M', 'H']:
-			print '\nThe priority given is not valid. Removing it.\n'
-			docopt_args['-p'] = ''
+			print '\nThe priority given is not valid.\n'
+			sys.exit(-4)
 
 	# validate date
 	if docopt_args['-d']:
-		pattern = Regex('^(1[0-2]|0?[1-9])/(3[01]|[12][0-9]|0?[1-9])/(?:[0-9]{2})?[0-9]{2}$')
+		pattern = Regex('^(1[0-2]|0?[1-9])(/|-|.)(3[01]|[12][0-9]|0?[1-9])(/|-|.)(?:[0-9]{2})?[0-9]{2}$')
 		try:
 			pattern.parseString(docopt_args['-d'])
 		except ParseException:
-			print '\n' + docopt_args['-d'] + ' is not a valid date. Removing it.\n'
-			docopt_args['-d'] = ''
+			print '\n' + docopt_args['-d'] + ' is not a valid date\n'
+			sys.exit(-3)
 		else:
 			# figure out what format the user provided...
-			date = docopt_args['-d'].split('/')
+			if '/' in docopt_args['-d']:
+				date_sep = '/'
+			elif '-' in docopt_args['-d']:
+				date_sep = '-'
+			elif '.' in docopt_args['-d']:
+				date_sep = '.'
+			else:
+				print '\nAn invalid date format was provided.\n'
+				sys.exit(-3)
+			date = docopt_args['-d'].split(date_sep)
 
 			if len(date[0]) == 1:
 				month_format = 'M'
@@ -82,7 +96,7 @@ def validate_args(docopt_args):
 			else:
 				year_format = 'YYYY'
 
-			date_format = '/'.join([month_format, day_format, year_format])
+			date_format = date_sep.join([month_format, day_format, year_format])
 			date = arrow.get(docopt_args['-d'], date_format)
 			print type(date)
 
@@ -105,7 +119,7 @@ def main(docopt_args):
 	if platform.system() == 'Windows':
 		home_path = os.path.join(os.path.expandvars('%HOMEDRIVE%'), os.path.expandvars('%HOMEPATH%'))
 		task_file = os.path.join(home_path, 'tasks.tsk')
-	elif platform.system() == 'Darwin':
+	elif platform.system() == 'Darwin' or platform.system() == 'Linux':
 		task_file = os.path.join(os.path.expanduser('~'), 'tasks.tsk')
 	else:
 		print 'What OS are we on?'
@@ -119,6 +133,7 @@ def main(docopt_args):
 		sys.exit(-1)
 	elif task_file_exists:
 		tasks.load_tasks(task_file)
+
 
 	if docopt_args['modify']:
 		if docopt_args['<Task>']:
@@ -169,6 +184,10 @@ def main(docopt_args):
 		tasks.delete_task(docopt_args['-r'])
 	if docopt_args['-a']:
 		tasks.show_tasks(date_format=docopt_args['-a'])
+	elif docopt_args['display']:
+		tasks.show_task(docopt_args['<Task_ID>'])
+	elif docopt_args['priority']:
+		tasks.show_tasks_by_priority(date_format=docopt_args['-a'])
 	else:
 		tasks.show_tasks()
 
