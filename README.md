@@ -5,8 +5,9 @@ A simple command-line based task maanager.
 
 run 'commandline.py -h' for the complete help menu:
 
-Usage: tasks.py priority [-a]
+Usage: tasks.py command argument option
 
+	   tasks.py priority [-a]
 	   tasks.py display <Task_ID>
 	   tasks.py search <Search_String>
 	   tasks.py modify <Task_ID> ([<Task>] | [-p <Priority>] | [-d <Due_Date>] | [-n <Note>] | [-t <Tags>])
