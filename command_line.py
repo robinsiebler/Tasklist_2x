@@ -43,13 +43,34 @@ Usage: tasks.py priority [-a]
 __author__ = 'Robin Siebler'
 __date__ = '5/6/15'
 
-import arrow
+
 import os
 import platform
 import sys
 
-from docopt import docopt
-from pyparsing import Regex, ParseException
+try:
+	import arrow
+except ImportError:
+	print 'The module "arrow" is required.  Install it by running "pip install arrow".'
+	sys.exit(-5)
+try:
+	import colorama
+except ImportError:
+	print 'The module "colorama" is required.  Install it by running "pip install colorama".'
+	sys.exit(-5)
+
+try:
+	from docopt import docopt
+except ImportError:
+	print 'The module "docopt" is required.  Install it by running "pip install docopt".'
+	sys.exit(-5)
+
+try:
+	from pyparsing import Regex, ParseException
+except ImportError:
+	print 'The module "pyparsing" is required.  Install it by running "pip install pyparsing".'
+	sys.exit(-5)
+
 from task_functions import Functions
 
 
