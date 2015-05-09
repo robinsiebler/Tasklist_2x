@@ -10,6 +10,7 @@
 """
 Usage: tasks.py priority [-a]
 	   tasks.py display <Task_ID>
+	   tasks.py search <Search_String>
 	   tasks.py modify <Task_ID> ([<Task>] | [-p <Priority>] | [-d <Due_Date>] | [-n <Note>] | [-t <Tags>])
 	   tasks.py [<Task>] [-a] ([-p <Priority>] [-d <Due_Date>] [-n <Note>] [-t <Tags>]) | [-r <Task_ID>]
 
@@ -18,6 +19,8 @@ Usage: tasks.py priority [-a]
 		display <Task_ID>       Display the note for a Task. This allows you to add more info to a task
 		modify <Task_ID>        The Task to modify followed by the updated information
 		priority                Display the Tasks in priority order
+		search <Search-string>  Search all the tasks for a given work or phrase. If the phrase contains
+								spaces, it must be enclosed in double quotes.
 
     Arguments:
         Task                    The task to add (Only 20 chars will be displayed)
@@ -35,7 +38,7 @@ Usage: tasks.py priority [-a]
 """
 
 # TODO: Add coloring to task if it is: a) due in a week or less or b) due today.
-# TODO: Add command to search
+
 
 __author__ = 'Robin Siebler'
 __date__ = '5/6/15'
@@ -188,6 +191,8 @@ def main(docopt_args):
 		tasks.show_task(docopt_args['<Task_ID>'])
 	elif docopt_args['priority']:
 		tasks.show_tasks_by_priority(date_format=docopt_args['-a'])
+	elif docopt_args['search']:
+		tasks.search_tasks(docopt_args['<Search_String>'])
 	else:
 		tasks.show_tasks()
 

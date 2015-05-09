@@ -172,11 +172,13 @@ class Functions:
 				                      '----------------------------------------')
 				print template.format(task.id, priority, task.task, task.note)
 
-	def search_tasks(self):
-		"""Search the task list for a task whose note or tag contains the user provided search string."""
+	def search_tasks(self, search_string):
+		"""Search the task list for a task whose contents contains the user provided search string.
 
-		search_string = raw_input('Enter the text you wish to search for: ').lower()
-		tasks = self.tasklist.search(search_string)
+		:param str search_string    the string to search for.
+		"""
+
+		tasks = self.tasklist.search(search_string.lower())
 		if tasks:
 			self.show_tasks(tasks)
 		else:
