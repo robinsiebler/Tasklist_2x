@@ -9,12 +9,16 @@ __author__ = 'Robin Siebler'
 __date__ = '5/6/15'
 
 import arrow
+import platform
 import util
+
 from tasklist import Task, TaskList
 from collections import OrderedDict
 
 from colorama import init, Fore, Style  # , Back
-init()
+
+if platform.system() == 'Windows':
+	init()
 
 
 class Functions:
@@ -34,9 +38,10 @@ class Functions:
 
 		if len(tasks) > 0:
 
-			template = '{0:^3} {1:^3} {2:15} {3:15} {4:20}'
-			print template.format('\nID', ' Pri', 'Due', 'Created', 'Description')
-			print template.format('---', '---', '---------------', '---------------', '--------------------')
+			template = '{0:^3} {1:^3} {2:15} {3:15} {4:20} {5:20}'
+			print template.format('\nID', ' Pri', 'Due', 'Created', 'Description', 'Tags')
+			print template.format('---', '---', '---------------', '---------------', '--------------------',
+			                      '--------------------')
 			for task in tasks:
 				if task.priority == 'L':
 					priority = Fore.YELLOW + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
@@ -51,22 +56,20 @@ class Functions:
 					due_date = ''
 				else:
 					if date_format:
-						due_date = arrow.get(task.due_date, task.due_date_format).humanize()
-					else:
 						due_date = task.due_date
+					else:
+						due_date = arrow.get(task.due_date, task.due_date_format).humanize()
 
 				if date_format:
-					age = arrow.get(task.creation_date, 'MM/DD/YYYY hh:mm:ss A ZZ').humanize()
-				else:
 					age = str(task.creation_date).split()[0]
-
-				# TODO: add tags
+				else:
+					age = arrow.get(task.creation_date, 'MM/DD/YYYY hh:mm:ss A ZZ').humanize()
 
 				if task.note:
 					desc = task.task + ' *'
 				else:
 					desc = task.task
-				print template.format(task.id, priority, due_date, age, desc)
+				print template.format(task.id, priority, due_date, age, desc, task.tags)
 
 		else:
 			print('\nThere are no tasks to display!\n')
@@ -133,14 +136,34 @@ class Functions:
 
 		self.tasklist.add_task(task, priority, due_date, tags, note)
 
-	def delete_task(self):
+	def delete_task(self, task_id):
 		"""Delete a task."""
 
-		task_id = self._validate_task_id('delete: ')
+		task_id = self._validate_task_id(task_id)
 		if task_id:
 			self.tasklist.delete_task(task_id)
 			self.tasklist.renumber_tasks()
 			print('The task was deleted.')
+
+	def modify_task(self, task_id, task_=None, priority=None, due_date=None, note=None, tags=None):
+		"""Modify a task."""
+
+		task_id = self._validate_task_id(task_id)
+		if task_id:
+			task = self.tasklist.find_task(task_id)
+		if task:
+			print 'Modifying task ' + str(task_id) + ': ' + task.task
+			if task_:
+				task.task = task_
+			elif priority:
+				task.priority = priority
+			elif due_date:
+				task.due_date = due_date
+			elif note:
+				task.note = note
+			elif tags:
+				task.tags = tags
+			print 'Modified task ' + str(task_id)
 
 	def load_tasks(self, task_file):
 		"""Load the task file and retrieve the tasks."""
@@ -153,15 +176,13 @@ class Functions:
 
 		util.save(self.tasklist.tasks, task_file)
 
-	def _validate_task_id(self, prompt):
-		"""Prompt the user for a task ID and validate it.
+	def _validate_task_id(self, task_id):
+		"""Validate a task id.
 
-		:param prompt: string appended to user prompt indicating the action to be taken after validation.
-		:return: False if an invalid ID was provided, otherwise a string containing the valid task id.
+		:return: None if an invalid ID was provided, otherwise a string containing the valid task id.
 		"""
 
-		task_id = raw_input('Enter the Number of the Task you wish to ' + prompt)
-		if task_id.isdecimal() and int(task_id) <= len(self.tasklist.tasks):
+		if task_id.isdigit() and int(task_id) <= len(self.tasklist.tasks):
 			return task_id
 		else:
 			print('{} is not an existing task!'.format(task_id))

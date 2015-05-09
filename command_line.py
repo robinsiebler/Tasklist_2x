@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # ------------------------------------------
 # Name:     command_line
 # Purpose:  Handle command-line options.
@@ -7,7 +8,11 @@
 # ------------------------------------------
 
 """
-Usage: tasks.py [<Task>] [-a] [-p=<Priority>] [-d=<Due_Date>] [-n=<Note>]
+Usage: tasks.py [<Task>] [-a] ([-p <Priority>] [-d <Due_Date>] [-n <Note>] [-t <Tags>]) | [-r <Task_ID>]
+	   tasks.py modify <Task_ID> ([<Task>] | [-p <Priority>] | [-d <Due_Date>] | [-n <Note>] | [-t <Tags>])
+
+	Commands:
+		modify <Task_ID>        The task to modify followed by the updated information
 
     Arguments:
         Task                    The task to add (20 chars in length)
@@ -18,11 +23,12 @@ Usage: tasks.py [<Task>] [-a] [-p=<Priority>] [-d=<Due_Date>] [-n=<Note>]
         -d <Due_Date>           Date the task is due (Date must contain /, not . or -)
         -n <Note>               A lengthier description of the task
         -p <Priority>           Priority - L, M, H (Low, Medium or High)
+        -r <Task_ID>            Remove a task
+        -t <Tags>               Words you want to associate with this task
 
-    Note: Both the Task and the Note need to be in double quotes if they contain spaces.
+    Note: The Task, the Note and any Tags need to be in double quotes if they contain spaces.
 """
 
-# TODO: Add modify command.
 # TODO: Add coloring to task if it is: a) due in a week or less or b) due today.
 # TODO: Add command to display note
 
@@ -31,10 +37,11 @@ __date__ = '5/6/15'
 
 import arrow
 import os
+import platform
 import sys
-from pyparsing import Regex, ParseException
 
 from docopt import docopt
+from pyparsing import Regex, ParseException
 from task_functions import Functions
 
 
@@ -95,9 +102,17 @@ def main(docopt_args):
 
 	tasks = Functions()
 
-	home_path = os.path.join(os.path.expandvars('%HOMEDRIVE%'), os.path.expandvars('%HOMEPATH%'))
-	task_file = os.path.join(home_path, 'tasks.tsk')
+	if platform.system() == 'Windows':
+		home_path = os.path.join(os.path.expandvars('%HOMEDRIVE%'), os.path.expandvars('%HOMEPATH%'))
+		task_file = os.path.join(home_path, 'tasks.tsk')
+	elif platform.system() == 'Darwin':
+		task_file = os.path.join(os.path.expanduser('~'), 'tasks.tsk')
+	else:
+		print 'What OS are we on?'
+		sys.exit(-2)
+
 	task_file_exists = os.path.exists(task_file)
+
 
 	if not task_file_exists and docopt_args['<Task>'] is None:
 		print '\nThe file ' + task_file + ' does not exist. There are no tasks to display.\n'
@@ -105,26 +120,53 @@ def main(docopt_args):
 	elif task_file_exists:
 		tasks.load_tasks(task_file)
 
-	if docopt_args['<Task>']:
+	if docopt_args['modify']:
+		if docopt_args['<Task>']:
+			tasks.modify_task(docopt_args['<Task_ID>'], task_=docopt_args['<Task>'])
+		elif docopt_args['-p']:
+			tasks.modify_task(docopt_args['<Task_ID>'], priority=docopt_args['-p'])
+		elif docopt_args['-d']:
+			tasks.modify_task(docopt_args['<Task_ID>'], due_date=docopt_args['-d'])
+		elif docopt_args['-n']:
+			tasks.modify_task(docopt_args['<Task_ID>'], note=docopt_args['-n'])
+		elif docopt_args['-t']:
+			tasks.modify_task(docopt_args['<Task_ID>'], tags=docopt_args['-t'])
+	elif docopt_args['<Task>']:
 		if docopt_args['-p']:
 			if docopt_args['-d']:
 				if docopt_args['-n']:
+					if docopt_args['-t']:
+						tasks.add_task(docopt_args['<Task>'], priority=docopt_args['-p'],
+						               due_date=docopt_args['-d'], note=docopt_args['-n'], tags=docopt_args['-t'])
+					else:
+						tasks.add_task(docopt_args['<Task>'], priority=docopt_args['-p'],
+						               due_date=docopt_args['-d'], note=docopt_args['-n'])
+				elif docopt_args['-t']:
 					tasks.add_task(docopt_args['<Task>'], priority=docopt_args['-p'],
-					               due_date=docopt_args['-d'], note=docopt_args['-n'])
+					               due_date=docopt_args['-d'], tags=docopt_args['-t'])
 				else:
 					tasks.add_task(docopt_args['<Task>'], priority=docopt_args['-p'], due_date=docopt_args['-d'])
-
 			elif docopt_args['-n']:
-				tasks.add_task(docopt_args['<Task>'], priority=docopt_args['-p'], note=docopt_args['-n'])
+				if docopt_args['-t']:
+					tasks.add_task(docopt_args['<Task>'], priority=docopt_args['-p'],
+					               note=docopt_args['-n'], tags=docopt_args['-t'])
+				else:
+					tasks.add_task(docopt_args['<Task>'], priority=docopt_args['-p'], note=docopt_args['-n'])
+			elif docopt_args['-t']:
+				tasks.add_task(docopt_args['<Task>'], priority=docopt_args['-p'], tags=docopt_args['-t'])
 			else:
 				tasks.add_task(docopt_args['<Task>'], priority=docopt_args['-p'])
 		elif docopt_args['-d']:
 			tasks.add_task(docopt_args['<Task>'], due_date=docopt_args['-d'])
 		elif docopt_args['-n']:
 			tasks.add_task(docopt_args['<Task>'], note=docopt_args['-n'])
+		elif docopt_args['-t']:
+			tasks.add_task(docopt_args['<Task>'], tags=docopt_args['-t'])
 		else:
 			tasks.add_task(docopt_args['<Task>'])
 
+	if docopt_args['-r']:
+		tasks.delete_task(docopt_args['-r'])
 	if docopt_args['-a']:
 		tasks.show_tasks(date_format=docopt_args['-a'])
 	else:
