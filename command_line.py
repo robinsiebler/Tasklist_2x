@@ -11,8 +11,8 @@
 Usage: tasks.py priority [-a]
 	   tasks.py display <Task_ID>
 	   tasks.py search <Search_String>
-	   tasks.py modify <Task_ID> ([<Task>] | [-p <Priority>] | ([-d <Due_Date>] | [-d <Due_Date>]) | [-n <Note>] | [-t <Tags>])
-	   tasks.py [<Task>] [-a] ([-p <Priority>] [-d <Due_Date>] [-n <Note>] [-t <Tags>]) | [-r <Task_ID>]
+	   tasks.py modify <Task_ID> ([<Task>] | [-p <Priority>] | [-d=<Due_Date> --time=<Time_Due>] | [-n <Note>] | [-t <Tags>])
+	   tasks.py [<Task>] [-a] ([-p <Priority>] [-d=<Due_Date> --time=<Time_Due>] [-n <Note>] [-t <Tags>]) | [-r <Task_ID>]
 
 
 	Commands:
@@ -33,18 +33,13 @@ Usage: tasks.py priority [-a]
         -p <Priority>           Priority - L, M, H (Low, Medium or High)
         -r <Task_ID>            Remove a task
         -t <Tags>               Words you want to associate with this task
-        --time <Time_Due>       Time the Task is due. If not provided, it defaults to 11:59:59 PM
+        --time <Time_Due>       Time the Task is due in the format h:mm AM/PM
 
     Note: The Task, the Note and any Tags need to be in double quotes if they contain spaces.
 """
 
 # TODO: Add coloring to task if it is: a) due in a week or less or b) due today.
-# TODO: Fix the whole time due issue:
-# TODO:     ...need to add --time to the command parsing logic
-# TODO:     ...need to fix the logic in the validation section
-# TODO:     ...need to increase the width of the Due column
-# TODO:     ...need to pad the width of the due date when it is colored. Use this logic:
-# TODO:         ...width of column - length of due date (before colorization) = amount of padding
+# TODO: Add option to mark task completed
 
 
 __author__ = 'Robin Siebler'
@@ -128,9 +123,24 @@ def validate_args(docopt_args):
 				year_format = 'YYYY'
 
 			date_format = date_sep.join([month_format, day_format, year_format])
-			date_format = date_format + ' hh:mm:ss A ZZ'
-			foo = docopt_args['-d'] + ' 11:59:59 PM'
-			date = arrow.get(foo + ' 11:59:59 PM', date_format)
+			date_format = date_format + ' h:mm A'
+			if docopt_args.has_key('--time') and docopt_args['--time']:
+				pattern = Regex('^ *(1[0-2]|[1-9]):[0-5][0-9] *(a|p|A|P)(m|M) *$')
+				try:
+					pattern.parseString(docopt_args['--time'])
+				except ParseException:
+					print '\nInvalid time format. Dropping Due Time.\n'
+				else:
+					#determine time format:
+					time = docopt_args['--time'].split(':')
+					hour = time[0]
+					minutes = time[1][:2]
+					period = time[1][-2:]
+					time = ':'.join([hour, minutes]) + ' ' + period
+					date = docopt_args['-d'] + ' ' + time
+			else:
+				date = docopt_args['-d'] + ' 11:59 PM'
+			date = arrow.get(date, date_format)
 
 
 			# validate due date occurs in the future

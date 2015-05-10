@@ -38,9 +38,9 @@ class Functions:
 
 		if len(tasks) > 0:
 
-			template = '{0:^3} {1:^3} {2:15} {3:15} {4:20} {5:20}'
+			template = '{0:^3} {1:^3} {2:20} {3:20} {4:20} {5:20}'
 			print template.format('\nID', ' Pri', 'Due', 'Created', 'Description', 'Tags')
-			print template.format('---', '---', '---------------', '---------------', '--------------------',
+			print template.format('---', '---', '--------------------', '--------------------', '--------------------',
 			                      '--------------------')
 			for task in tasks:
 				if task.priority == 'L':
@@ -56,9 +56,9 @@ class Functions:
 					due_date = ''
 				else:
 					if date_format:
-						due_date = task.due_date
+						due_date = task.due_date.ljust(20)
 					else:
-						due_date = arrow.get(task.due_date, task.due_date_format).humanize()
+						due_date = (arrow.get(task.due_date, task.due_date_format).humanize()).ljust(20)
 
 					future = arrow.now().replace(weeks=+1)
 					diff = future - arrow.get(task.due_date, task.due_date_format)
@@ -70,9 +70,9 @@ class Functions:
 						due_date = Fore.RED + Style.BRIGHT + Back.WHITE + due_date + Fore.RESET + Style.NORMAL + Back.RESET
 
 				if date_format:
-					age = str(task.creation_date).split()[0]
+					age = (str(task.creation_date).split()[0]).ljust(20)  # drop the time zone
 				else:
-					age = arrow.get(task.creation_date, 'MM/DD/YYYY hh:mm:ss A ZZ').humanize()
+					age = (arrow.get(task.creation_date, 'MM/DD/YYYY h:mm:ss A ZZ').humanize()).ljust(20)
 
 				if task.note:
 					desc = task.task + ' *'
@@ -105,14 +105,14 @@ class Functions:
 					due_date = ''
 				else:
 					if date_format:
-						due_date = task.due_date
+						due_date = task.due_date.ljust(20)
 					else:
-						due_date = arrow.get(task.due_date, task.due_date_format).humanize()
+						due_date = (arrow.get(task.due_date, task.due_date_format).humanize()).ljust(20)
 
 				if date_format:
-					age = str(task.creation_date).split()[0]
+					age = (str(task.creation_date).split()[0]).ljust(20)
 				else:
-					age = arrow.get(task.creation_date, 'MM/DD/YYYY hh:mm:ss A ZZ').humanize()
+					age = (arrow.get(task.creation_date, 'MM/DD/YYYY hh:mm:ss A ZZ').humanize()).ljust(20)
 
 				if task.note:
 					desc = task.task + ' *'
@@ -135,9 +135,9 @@ class Functions:
 			print('\nThere are no tasks to display!\n')
 			return
 
-		template = '{0:^3} {1:^3} {2:15} {3:15} {4:20} {5:20}'
+		template = '{0:^3} {1:^3} {2:20} {3:20} {4:20} {5:20}'
 		print template.format('\nPri', 'ID', 'Due', 'Created', 'Description', 'Tags')
-		print template.format('---', '---', '---------------', '---------------', '--------------------',
+		print template.format('---', '---', '--------------------', '--------------------', '--------------------',
 		                      '--------------------')
 
 		if len(high_dict) > 0:
