@@ -15,7 +15,7 @@ import util
 from tasklist import Task, TaskList
 from collections import OrderedDict
 
-from colorama import init, Fore, Style  # , Back
+from colorama import init, Fore, Back, Style
 
 if platform.system() == 'Windows':
 	init()
@@ -59,6 +59,15 @@ class Functions:
 						due_date = task.due_date
 					else:
 						due_date = arrow.get(task.due_date, task.due_date_format).humanize()
+
+					future = arrow.now().replace(weeks=+1)
+					diff = future - arrow.get(task.due_date, task.due_date_format)
+					if diff.days > 1 and diff.days <= 7:
+						due_date = Fore.BLUE + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
+					elif diff.days <= 1:
+						due_date = Fore.RED + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
+					elif diff.days < 0:
+						due_date = Fore.RED + Style.BRIGHT + Back.WHITE + due_date + Fore.RESET + Style.NORMAL + Back.RESET
 
 				if date_format:
 					age = str(task.creation_date).split()[0]

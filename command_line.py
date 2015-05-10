@@ -11,7 +11,7 @@
 Usage: tasks.py priority [-a]
 	   tasks.py display <Task_ID>
 	   tasks.py search <Search_String>
-	   tasks.py modify <Task_ID> ([<Task>] | [-p <Priority>] | [-d <Due_Date>] | [-n <Note>] | [-t <Tags>])
+	   tasks.py modify <Task_ID> ([<Task>] | [-p <Priority>] | ([-d <Due_Date>] | [-d <Due_Date>]) | [-n <Note>] | [-t <Tags>])
 	   tasks.py [<Task>] [-a] ([-p <Priority>] [-d <Due_Date>] [-n <Note>] [-t <Tags>]) | [-r <Task_ID>]
 
 
@@ -33,11 +33,18 @@ Usage: tasks.py priority [-a]
         -p <Priority>           Priority - L, M, H (Low, Medium or High)
         -r <Task_ID>            Remove a task
         -t <Tags>               Words you want to associate with this task
+        --time <Time_Due>       Time the Task is due. If not provided, it defaults to 11:59:59 PM
 
     Note: The Task, the Note and any Tags need to be in double quotes if they contain spaces.
 """
 
 # TODO: Add coloring to task if it is: a) due in a week or less or b) due today.
+# TODO: Fix the whole time due issue:
+# TODO:     ...need to add --time to the command parsing logic
+# TODO:     ...need to fix the logic in the validation section
+# TODO:     ...need to increase the width of the Due column
+# TODO:     ...need to pad the width of the due date when it is colored. Use this logic:
+# TODO:         ...width of column - length of due date (before colorization) = amount of padding
 
 
 __author__ = 'Robin Siebler'
@@ -121,16 +128,16 @@ def validate_args(docopt_args):
 				year_format = 'YYYY'
 
 			date_format = date_sep.join([month_format, day_format, year_format])
-			date = arrow.get(docopt_args['-d'], date_format)
-			print type(date)
+			date_format = date_format + ' hh:mm:ss A ZZ'
+			foo = docopt_args['-d'] + ' 11:59:59 PM'
+			date = arrow.get(foo + ' 11:59:59 PM', date_format)
 
 
 			# validate due date occurs in the future
-			if 'ago' in date.humanize():
-				print '\nThe due date provided occurs in the past. Removing it.\n'
-				docopt_args['-d'] = None
-			else:
-				docopt_args['-d'] = [date.format(date_format), date_format]
+			if date.date() < date.date().today():
+				print '\nWarning: The due date provided occurs in the past.\n'
+
+			docopt_args['-d'] = [date.format(date_format), date_format]
 
 	return docopt_args
 
