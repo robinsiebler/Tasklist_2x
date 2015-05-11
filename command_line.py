@@ -121,7 +121,8 @@ def validate_args(docopt_args):
 				year_format = 'YYYY'
 
 			# get the time zone
-			offset = time.strftime('%z', time.localtime())
+			# offset = time.strftime('%z', time.localtime()) <--- This doesn't work on windows
+			offset = ("-" if time.timezone > 0 else "+") + time.strftime("%H:%M", time.gmtime(abs(time.timezone)))
 			# parse the date
 			date_format = date_sep.join([month_format, day_format, year_format])
 			date_format = date_format + ' h:mm A Z'
