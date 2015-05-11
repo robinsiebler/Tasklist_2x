@@ -66,9 +66,9 @@ class Functions:
 					if not task.completed:
 						today = arrow.now()
 						diff = arrow.get(task.due_date, task.due_date_format) - today
-						if diff.days > 1 and diff.days <= 7:
+						if 1 < diff.days <= 7:
 							due_date = Fore.CYAN + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
-						elif diff.days > 0 and diff.days <= 1:
+						elif 0 < diff.days <= 1:
 							due_date = Fore.BLUE + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
 						elif diff.days <= 0:
 							due_date = Fore.RED + Style.BRIGHT +  due_date + Fore.RESET + Style.NORMAL
