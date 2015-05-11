@@ -27,6 +27,7 @@ class Task:
 		self.priority = priority
 		self.tags = tags
 		self.note = note
+		self.completed = False
 		self.creation_date = arrow.now().format('MM/DD/YYYY h:mm:ss A ZZ')
 		if due_date:
 			self.due_date = due_date[0]

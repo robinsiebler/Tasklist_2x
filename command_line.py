@@ -11,7 +11,7 @@
 Usage: tasks.py priority [-a]
 	   tasks.py display <Task_ID>
 	   tasks.py search <Search_String>
-	   tasks.py modify <Task_ID> ([<Task>] | [-p <Priority>] | [-d=<Due_Date> --time=<Time_Due>] | [-n <Note>] | [-t <Tags>])
+	   tasks.py modify <Task_ID> ([<Task>] | [-c] | [-p <Priority>] | [-d=<Due_Date> --time=<Time_Due>] | [-n <Note>] | [-t <Tags>])
 	   tasks.py [<Task>] [-a] ([-p <Priority>] [-d=<Due_Date> --time=<Time_Due>] [-n <Note>] [-t <Tags>]) | [-r <Task_ID>]
 
 
@@ -28,6 +28,7 @@ Usage: tasks.py priority [-a]
     Options:
         -h --help               Show this screen.
         -a                      Display absolute dates
+        -c                      Mark a task as completed
         -d <Due_Date>           Date the task is due (Ex: M/D/YY, MM-DD-YYYY, MM.DD.YY)
         -n <Note>               A lengthier description of the task
         -p <Priority>           Priority - L, M, H (Low, Medium or High)
@@ -38,17 +39,14 @@ Usage: tasks.py priority [-a]
     Note: The Task, the Note and any Tags need to be in double quotes if they contain spaces.
 """
 
-# TODO: Add coloring to task if it is: a) due in a week or less or b) due today.
-# TODO: Add option to mark task completed
-
-
 __author__ = 'Robin Siebler'
 __date__ = '5/6/15'
-
 
 import os
 import platform
 import sys
+import time
+
 
 try:
 	import arrow
@@ -122,8 +120,11 @@ def validate_args(docopt_args):
 			else:
 				year_format = 'YYYY'
 
+			# get the time zone
+			offset = time.strftime('%z', time.localtime())
+			# parse the date
 			date_format = date_sep.join([month_format, day_format, year_format])
-			date_format = date_format + ' h:mm A'
+			date_format = date_format + ' h:mm A Z'
 			if docopt_args.has_key('--time') and docopt_args['--time']:
 				pattern = Regex('^ *(1[0-2]|[1-9]):[0-5][0-9] *(a|p|A|P)(m|M) *$')
 				try:
@@ -132,14 +133,14 @@ def validate_args(docopt_args):
 					print '\nInvalid time format. Dropping Due Time.\n'
 				else:
 					#determine time format:
-					time = docopt_args['--time'].split(':')
-					hour = time[0]
-					minutes = time[1][:2]
-					period = time[1][-2:]
-					time = ':'.join([hour, minutes]) + ' ' + period
-					date = docopt_args['-d'] + ' ' + time
+					dtime = docopt_args['--time'].split(':')
+					hour = dtime[0]
+					minutes = dtime[1][:2]
+					period = dtime[1][-2:]
+					dtime = ':'.join([hour, minutes]) + ' ' + period + ' ' + str(offset)
+					date = docopt_args['-d'] + ' ' + dtime
 			else:
-				date = docopt_args['-d'] + ' 11:59 PM'
+				date = docopt_args['-d'] + ' 11:59 PM ' + offset
 			date = arrow.get(date, date_format)
 
 
@@ -179,6 +180,8 @@ def main(docopt_args):
 	if docopt_args['modify']:
 		if docopt_args['<Task>']:
 			tasks.modify_task(docopt_args['<Task_ID>'], task_=docopt_args['<Task>'])
+		elif docopt_args['-c']:
+			tasks.modify_task(docopt_args['<Task_ID>'], completed=True)
 		elif docopt_args['-p']:
 			tasks.modify_task(docopt_args['<Task_ID>'], priority=docopt_args['-p'])
 		elif docopt_args['-d']:

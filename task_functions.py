@@ -26,6 +26,9 @@ class Functions:
 		"""Initialize the task list."""
 
 		self.tasklist = TaskList()
+		self.legend = '\nLegend: Not Due  ' + Fore.CYAN + Style.BRIGHT + 'Upcoming  ' + Fore.BLUE + \
+		              Style.BRIGHT + 'Due  ' + Fore.RED + Style.BRIGHT + 'Overdue  ' + Fore.WHITE + Style.DIM + \
+		              'Completed' + Fore.RESET + Style.NORMAL
 
 	def show_tasks(self, tasks=None, date_format=None):
 		"""Display the tasks (in ID order)
@@ -44,11 +47,11 @@ class Functions:
 			                      '--------------------')
 			for task in tasks:
 				if task.priority == 'L':
-					priority = Fore.YELLOW + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
+					priority = Fore.YELLOW + Style.BRIGHT + task.priority.center(3) + Fore.RESET + Style.NORMAL
 				elif task.priority == 'M':
-					priority = Fore.BLUE + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
+					priority = Fore.BLUE + Style.BRIGHT + task.priority.center(3) + Fore.RESET + Style.NORMAL
 				elif task.priority == 'H':
-					priority = Fore.RED + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
+					priority = Fore.RED + Style.BRIGHT + task.priority.center(3) + Fore.RESET + Style.NORMAL
 				else:
 					priority = ''
 
@@ -56,18 +59,19 @@ class Functions:
 					due_date = ''
 				else:
 					if date_format:
-						due_date = task.due_date.ljust(20)
+						due_date = task.due_date.rsplit(' ', 1)[0].ljust(20)
 					else:
 						due_date = (arrow.get(task.due_date, task.due_date_format).humanize()).ljust(20)
 
-					future = arrow.now().replace(weeks=+1)
-					diff = future - arrow.get(task.due_date, task.due_date_format)
-					if diff.days > 1 and diff.days <= 7:
-						due_date = Fore.BLUE + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
-					elif diff.days <= 1:
-						due_date = Fore.RED + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
-					elif diff.days < 0:
-						due_date = Fore.RED + Style.BRIGHT + Back.WHITE + due_date + Fore.RESET + Style.NORMAL + Back.RESET
+					if not task.completed:
+						today = arrow.now()
+						diff = arrow.get(task.due_date, task.due_date_format) - today
+						if diff.days > 1 and diff.days <= 7:
+							due_date = Fore.CYAN + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
+						elif diff.days > 0 and diff.days <= 1:
+							due_date = Fore.BLUE + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
+						elif diff.days <= 0:
+							due_date = Fore.RED + Style.BRIGHT +  due_date + Fore.RESET + Style.NORMAL
 
 				if date_format:
 					age = (str(task.creation_date).split()[0]).ljust(20)  # drop the time zone
@@ -78,8 +82,19 @@ class Functions:
 					desc = task.task + ' *'
 				else:
 					desc = task.task
-				print template.format(task.id, priority, due_date, age, desc, task.tags)
 
+				if task.completed:
+					if task.priority:
+						priority = task.priority
+					else:
+						priority = ''
+					task_id = Fore.WHITE + Style.DIM + str(task.id).center(3)
+					tags = str(task.tags) + Fore.RESET + Style.NORMAL
+					print template.format(task_id, priority, due_date, age, desc, tags)
+				else:
+					print template.format(task.id, priority, due_date, age, desc, task.tags)
+
+			print self.legend
 		else:
 			print('\nThere are no tasks to display!\n')
 
@@ -93,19 +108,19 @@ class Functions:
 		med_dict = OrderedDict()
 		high_dict = OrderedDict()
 		no_dict = OrderedDict()
+		completed_dict = OrderedDict()
 
 		if not tasks:
 			tasks = self.tasklist.tasks
 
 		if len(tasks) > 0:
-			print('\nTasks:\n')
 			for task in tasks:
 
 				if task.due_date is None:
 					due_date = ''
 				else:
 					if date_format:
-						due_date = task.due_date.ljust(20)
+						due_date = task.due_date.rsplit(' ', 1)[0].ljust(20)
 					else:
 						due_date = (arrow.get(task.due_date, task.due_date_format).humanize()).ljust(20)
 
@@ -119,7 +134,9 @@ class Functions:
 				else:
 					desc = task.task
 
-				if task.priority == 'L':
+				if task.completed:
+					completed_dict[task.id] = task.priority, due_date, age, desc, task.tags
+				elif task.priority == 'L':
 					priority = Fore.YELLOW + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
 					low_dict[task.id] = [priority, due_date, age, desc, task.tags]
 				elif task.priority == 'M':
@@ -156,6 +173,17 @@ class Functions:
 			for key in no_dict:
 				print template.format(no_dict[key][0], key, no_dict[key][1], no_dict[key][2], 
 				                      no_dict[key][3], no_dict[key][4])
+		
+		completed_template = Fore.WHITE + Style.DIM + '{0:^3} {1:^3} {2:20} {3:20} {4:20} {5:20}' + Fore.RESET + Style.NORMAL
+		if len(completed_dict) > 0:
+			for key in completed_dict:
+				if completed_dict[key][0]:
+					priority = completed_dict[key][0]
+				else:
+					priority = ''
+				print completed_template.format(priority, key, completed_dict[key][1],
+				                                completed_dict[key][2], completed_dict[key][3], completed_dict[key][4])
+		print self.legend
 
 	def show_task(self, task_id):
 		"""Display the specified task, including its notes, if any.
@@ -207,7 +235,7 @@ class Functions:
 			self.tasklist.renumber_tasks()
 			print('Task ' + task_id + ' was deleted.')
 
-	def modify_task(self, task_id, task_=None, priority=None, due_date=None, note=None, tags=None):
+	def modify_task(self, task_id, task_=None, completed = False, priority=None, due_date=None, note=None, tags=None):
 		"""Modify a task."""
 
 		task_id = self._validate_task_id(task_id)
@@ -225,6 +253,8 @@ class Functions:
 					task.note = note
 				elif tags:
 					task.tags = tags
+				elif completed:
+					task.completed = True
 				print 'Modified task ' + str(task_id)
 
 	def load_tasks(self, task_file):
