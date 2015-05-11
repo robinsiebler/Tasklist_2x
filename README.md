@@ -10,8 +10,8 @@ Usage: tasks.py command argument option
 	   tasks.py priority [-a]
 	   tasks.py display <Task_ID>
 	   tasks.py search <Search_String>
-	   tasks.py modify <Task_ID> ([<Task>] | [-p <Priority>] | [-d <Due_Date>] | [-n <Note>] | [-t <Tags>])
-	   tasks.py [<Task>] [-a] ([-p <Priority>] [-d <Due_Date>] [-n <Note>] [-t <Tags>]) | [-r <Task_ID>]
+	   tasks.py modify <Task_ID> ([<Task>] | [-c] | [-p <Priority>] | [-d=<Due_Date> --time=<Time_Due>] | [-n <Note>] | [-t <Tags>])
+	   tasks.py [<Task>] [-a] ([-p <Priority>] [-d=<Due_Date> --time=<Time_Due>] [-n <Note>] [-t <Tags>]) | [-r <Task_ID>]
 
 
 	Commands:
@@ -27,10 +27,12 @@ Usage: tasks.py command argument option
     Options:
         -h --help               Show this screen.
         -a                      Display absolute dates
+        -c                      Mark a task as completed
         -d <Due_Date>           Date the task is due (Ex: M/D/YY, MM-DD-YYYY, MM.DD.YY)
         -n <Note>               A lengthier description of the task
         -p <Priority>           Priority - L, M, H (Low, Medium or High)
         -r <Task_ID>            Remove a task
         -t <Tags>               Words you want to associate with this task
+        --time <Time_Due>       Time the Task is due in the format h:mm AM/PM
 
     Note: The Task, the Note and any Tags need to be in double quotes if they contain spaces.
