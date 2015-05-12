@@ -126,7 +126,6 @@ class Functions:
 
 		if len(tasks) > 0:
 			for task in tasks:
-
 				if task.due_date is None:
 					due_date = ''
 				else:
@@ -134,7 +133,6 @@ class Functions:
 						due_date = task.due_date.rsplit(' ', 1)[0].ljust(20)
 					else:
 						due_date = (arrow.get(task.due_date, task.due_date_format).humanize()).ljust(20)
-
 
 				age = (str(task.creation_date).split()[0]).ljust(20)  # drop the time zone
 
@@ -155,39 +153,6 @@ class Functions:
 					priority = ''
 					no_dict[task.id] = [task.priority, due_date, age, desc, task.tags]
 
-
-				# if date_format:
-				# 	age = (str(task.creation_date).split()[0]).ljust(20)  # drop the time zone
-				# else:
-				# 	age = (arrow.get(task.creation_date, 'MM/DD/YYYY h:mm:ss A ZZ').humanize()).ljust(20)
-
-
-
-				# if not task.completed:
-				# 	today = arrow.now()
-				# 	diff = arrow.get(task.due_date, task.due_date_format) - today
-				# 	if diff.days >= 1 and diff.seconds > 0:
-				# 		due_date = Fore.CYAN + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
-				# 	elif diff.days >= 0:
-				# 		due_date = Fore.BLUE + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
-				# 	elif diff.days <= 0:
-				# 		due_date = Fore.RED + Style.BRIGHT +  due_date + Fore.RESET + Style.NORMAL
-
-
-				# if task.completed:
-				# 	completed_dict[task.id] = task.priority, due_date, age, desc, task.tags
-				# elif task.priority == 'L':
-				# 	priority = Fore.YELLOW + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
-				# 	low_dict[task.id] = [priority, due_date, age, desc, task.tags]
-				# elif task.priority == 'M':
-				# 	priority = Fore.BLUE + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
-				# 	med_dict[task.id] = [priority, due_date, age, desc, task.tags]
-				# elif task.priority == 'H':
-				# 	priority = Fore.RED + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
-				# 	high_dict[task.id] = [priority, due_date, age, desc, task.tags]
-				# else:
-				# 	priority = ''
-				# 	no_dict[task.id] = [priority, due_date, age, desc, task.tags]
 		else:
 			print('\nThere are no tasks to display!\n')
 			return
@@ -253,7 +218,6 @@ class Functions:
 		del no_dict
 		del completed_dict
 
-
 		today = arrow.now()
 
 		for dict in [low_dict_o, med_dict_o, high_dict_o, no_dict_o, completed_dict_o]:
@@ -276,11 +240,6 @@ class Functions:
 						dict[key][1] = Fore.BLUE + Style.BRIGHT + value[1] + Fore.RESET + Style.NORMAL
 					elif diff.days <= 0:
 						dict[key][1] = Fore.RED + Style.BRIGHT +  value[1] + Fore.RESET + Style.NORMAL
-
-
-
-
-
 
 		template = '{0:^3} {1:^3} {2:20} {3:15} {4:20} {5:20}'
 		print template.format('\nPri', 'ID', 'Due', 'Created', 'Description', 'Tags')
