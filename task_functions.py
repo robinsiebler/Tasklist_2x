@@ -66,9 +66,9 @@ class Functions:
 					if not task.completed:
 						today = arrow.now()
 						diff = arrow.get(task.due_date, task.due_date_format) - today
-						if 1 < diff.days <= 7:
+						if diff.days >= 1 and diff.seconds > 0:
 							due_date = Fore.CYAN + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
-						elif 0 < diff.days <= 1:
+						elif diff.days >= 0:
 							due_date = Fore.BLUE + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
 						elif diff.days <= 0:
 							due_date = Fore.RED + Style.BRIGHT +  due_date + Fore.RESET + Style.NORMAL
@@ -124,10 +124,20 @@ class Functions:
 					else:
 						due_date = (arrow.get(task.due_date, task.due_date_format).humanize()).ljust(20)
 
+					if not task.completed:
+						today = arrow.now()
+						diff = arrow.get(task.due_date, task.due_date_format) - today
+						if diff.days >= 1 and diff.seconds > 0:
+							due_date = Fore.CYAN + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
+						elif diff.days >= 0:
+							due_date = Fore.BLUE + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
+						elif diff.days <= 0:
+							due_date = Fore.RED + Style.BRIGHT +  due_date + Fore.RESET + Style.NORMAL
+
 				if date_format:
 					age = (str(task.creation_date).split()[0]).ljust(20)
 				else:
-					age = (arrow.get(task.creation_date, 'MM/DD/YYYY hh:mm:ss A ZZ').humanize()).ljust(20)
+					age = (arrow.get(task.creation_date, 'MM/DD/YYYY h:mm:ss A ZZ').humanize()).ljust(20)
 
 				if task.note:
 					desc = task.task + ' *'
