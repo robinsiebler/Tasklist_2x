@@ -9,13 +9,14 @@
 
 """
 Usage: tasks.py priority [-a]
+	   tasks.py delete <Task_ID>
 	   tasks.py display <Task_ID>
 	   tasks.py search <Search_String>
 	   tasks.py modify <Task_ID> ([<Task>] | [-c] | [-p <Priority>] | [-d=<Due_Date> --time=<Time_Due>] | [-n <Note>] | [-t <Tags>])
-	   tasks.py [<Task>] [-a] ([-p <Priority>] [-d=<Due_Date> --time=<Time_Due>] [-n <Note>] [-t <Tags>]) | [-r <Task_ID>]
-
+	   tasks.py [<Task>] [-a] ([-p <Priority>] [-d=<Due_Date> --time=<Time_Due>] [-n <Note>] [-t <Tags>])
 
 	Commands:
+		delete <Task_ID>        Delete a Task
 		display <Task_ID>       Display the note for a Task. This allows you to add more info to a task
 		modify <Task_ID>        The Task to modify followed by the updated information
 		priority                Display the Tasks in priority order
@@ -32,7 +33,6 @@ Usage: tasks.py priority [-a]
         -d <Due_Date>           Date the task is due (Ex: M/D/YY, MM-DD-YYYY, MM.DD.YY)
         -n <Note>               A lengthier description of the task
         -p <Priority>           Priority - L, M, H (Low, Medium or High)
-        -r <Task_ID>            Remove a task
         -t <Tags>               Words you want to associate with this task
         --time <Time_Due>       Time the Task is due in the format h:mm AM/PM
 
@@ -46,7 +46,6 @@ import os
 import platform
 import sys
 import time
-
 
 try:
 	import arrow
@@ -139,7 +138,6 @@ def validate_args(docopt_args):
 				date = docopt_args['-d'] + ' 11:59 PM ' + offset
 			date = arrow.get(date, date_format)
 
-
 			# validate due date occurs in the future
 			if date.date() < date.date().today():
 				print '\nWarning: The due date provided occurs in the past.\n'
@@ -165,13 +163,11 @@ def main(docopt_args):
 
 	task_file_exists = os.path.exists(task_file)
 
-
 	if not task_file_exists and docopt_args['<Task>'] is None:
 		print '\nThe file ' + task_file + ' does not exist. There are no tasks to display.\n'
 		sys.exit(-1)
 	elif task_file_exists:
 		tasks.load_tasks(task_file)
-
 
 	if docopt_args['modify']:
 		if docopt_args['<Task>']:
@@ -219,17 +215,16 @@ def main(docopt_args):
 			tasks.add_task(docopt_args['<Task>'], tags=docopt_args['-t'])
 		else:
 			tasks.add_task(docopt_args['<Task>'])
-
-	if docopt_args['-r']:
-		tasks.delete_task(docopt_args['-r'])
-	if docopt_args['-a']:
-		tasks.show_tasks(date_format=docopt_args['-a'])
+	elif docopt_args['delete']:
+		tasks.delete_task(docopt_args['<Task_ID>'])
 	elif docopt_args['display']:
 		tasks.show_task(docopt_args['<Task_ID>'])
 	elif docopt_args['priority']:
 		tasks.show_tasks_by_priority(date_format=docopt_args['-a'])
 	elif docopt_args['search']:
 		tasks.search_tasks(docopt_args['<Search_String>'])
+	elif docopt_args['-a']:
+		tasks.show_tasks(date_format=docopt_args['-a'])
 	else:
 		tasks.show_tasks()
 

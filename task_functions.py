@@ -44,9 +44,9 @@ class Functions:
 
 		if len(tasks) > 0:
 
-			template = '{0:^3} {1:^3} {2:20} {3:20} {4:20} {5:20}'
+			template = '{0:^3} {1:^3} {2:20} {3:15} {4:20} {5:20}'
 			print template.format('\nID', ' Pri', 'Due', 'Created', 'Description', 'Tags')
-			print template.format('---', '---', '--------------------', '--------------------', '--------------------',
+			print template.format('---', '---', '--------------------', '---------------', '--------------------',
 			                      '--------------------')
 			for task in tasks:
 				if task.priority == 'L':
@@ -77,9 +77,9 @@ class Functions:
 							due_date = Fore.RED + Style.BRIGHT +  due_date + Fore.RESET + Style.NORMAL
 
 				if date_format:
-					age = (str(task.creation_date).split()[0]).ljust(20)  # drop the time zone
+					age = (str(task.creation_date).split()[0]).ljust(15)  # drop the time zone
 				else:
-					age = (arrow.get(task.creation_date, 'MM/DD/YYYY h:mm:ss A ZZ').humanize()).ljust(20)
+					age = (arrow.get(task.creation_date, 'MM/DD/YYYY h:mm:ss A ZZ').humanize()).ljust(15)
 
 				if task.note:
 					desc = task.task + ' *'
@@ -107,11 +107,19 @@ class Functions:
 		:param tasks: tasks object
 		"""
 
-		low_dict = OrderedDict()
-		med_dict = OrderedDict()
-		high_dict = OrderedDict()
-		no_dict = OrderedDict()
-		completed_dict = OrderedDict()
+		low_dict_o = OrderedDict()
+		med_dict_o = OrderedDict()
+		high_dict_o = OrderedDict()
+		no_dict_o = OrderedDict()
+		completed_dict_o = OrderedDict()
+
+		low_dict = {}
+		med_dict = {}
+		high_dict = {}
+		no_dict = {}
+		completed_dict = {}
+
+		temp_dict = {}
 
 		if not tasks:
 			tasks = self.tasklist.tasks
@@ -122,25 +130,13 @@ class Functions:
 				if task.due_date is None:
 					due_date = ''
 				else:
-					if date_format:
+					if task.due_date_format:
 						due_date = task.due_date.rsplit(' ', 1)[0].ljust(20)
 					else:
 						due_date = (arrow.get(task.due_date, task.due_date_format).humanize()).ljust(20)
 
-					if not task.completed:
-						today = arrow.now()
-						diff = arrow.get(task.due_date, task.due_date_format) - today
-						if diff.days >= 1 and diff.seconds > 0:
-							due_date = Fore.CYAN + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
-						elif diff.days >= 0:
-							due_date = Fore.BLUE + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
-						elif diff.days <= 0:
-							due_date = Fore.RED + Style.BRIGHT +  due_date + Fore.RESET + Style.NORMAL
 
-				if date_format:
-					age = (str(task.creation_date).split()[0]).ljust(20)
-				else:
-					age = (arrow.get(task.creation_date, 'MM/DD/YYYY h:mm:ss A ZZ').humanize()).ljust(20)
+				age = (str(task.creation_date).split()[0]).ljust(20)  # drop the time zone
 
 				if task.note:
 					desc = task.task + ' *'
@@ -150,52 +146,173 @@ class Functions:
 				if task.completed:
 					completed_dict[task.id] = task.priority, due_date, age, desc, task.tags
 				elif task.priority == 'L':
-					priority = Fore.YELLOW + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
-					low_dict[task.id] = [priority, due_date, age, desc, task.tags]
+					low_dict[task.id] = [task.priority, due_date, age, desc, task.tags]
 				elif task.priority == 'M':
-					priority = Fore.BLUE + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
-					med_dict[task.id] = [priority, due_date, age, desc, task.tags]
+					med_dict[task.id] = [task.priority, due_date, age, desc, task.tags]
 				elif task.priority == 'H':
-					priority = Fore.RED + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
-					high_dict[task.id] = [priority, due_date, age, desc, task.tags]
+					high_dict[task.id] = [task.priority, due_date, age, desc, task.tags]
 				else:
 					priority = ''
-					no_dict[task.id] = [priority, due_date, age, desc, task.tags]
+					no_dict[task.id] = [task.priority, due_date, age, desc, task.tags]
+
+
+				# if date_format:
+				# 	age = (str(task.creation_date).split()[0]).ljust(20)  # drop the time zone
+				# else:
+				# 	age = (arrow.get(task.creation_date, 'MM/DD/YYYY h:mm:ss A ZZ').humanize()).ljust(20)
+
+
+
+				# if not task.completed:
+				# 	today = arrow.now()
+				# 	diff = arrow.get(task.due_date, task.due_date_format) - today
+				# 	if diff.days >= 1 and diff.seconds > 0:
+				# 		due_date = Fore.CYAN + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
+				# 	elif diff.days >= 0:
+				# 		due_date = Fore.BLUE + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
+				# 	elif diff.days <= 0:
+				# 		due_date = Fore.RED + Style.BRIGHT +  due_date + Fore.RESET + Style.NORMAL
+
+
+				# if task.completed:
+				# 	completed_dict[task.id] = task.priority, due_date, age, desc, task.tags
+				# elif task.priority == 'L':
+				# 	priority = Fore.YELLOW + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
+				# 	low_dict[task.id] = [priority, due_date, age, desc, task.tags]
+				# elif task.priority == 'M':
+				# 	priority = Fore.BLUE + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
+				# 	med_dict[task.id] = [priority, due_date, age, desc, task.tags]
+				# elif task.priority == 'H':
+				# 	priority = Fore.RED + Style.BRIGHT + ' ' + task.priority + ' ' + Fore.RESET + Style.NORMAL
+				# 	high_dict[task.id] = [priority, due_date, age, desc, task.tags]
+				# else:
+				# 	priority = ''
+				# 	no_dict[task.id] = [priority, due_date, age, desc, task.tags]
 		else:
 			print('\nThere are no tasks to display!\n')
 			return
 
-		template = '{0:^3} {1:^3} {2:20} {3:20} {4:20} {5:20}'
+		for key, value in sorted(no_dict.items(), key=lambda e: e[1][1]):
+			if value[1] is not '':
+				no_dict_o[key] = value
+			else:
+				temp_dict[key] = value
+
+		for key, value in temp_dict.items():
+			no_dict_o[key] = value
+
+		temp_dict.clear()
+
+		for key, value in sorted(low_dict.items(), key=lambda e: e[1][1]):
+			if value[1] is not '':
+				low_dict_o[key] = value
+			else:
+				temp_dict[key] = value
+
+		for key, value in temp_dict.items():
+			low_dict_o[key] = value
+
+		temp_dict.clear()
+
+		for key, value in sorted(med_dict.items(), key=lambda e: e[1][1]):
+			if value[1] is not '':
+				med_dict_o[key] = value
+			else:
+				temp_dict[key] = value
+
+		for key, value in temp_dict.items():
+			med_dict_o[key] = value
+
+		temp_dict.clear()
+
+		for key, value in sorted(high_dict.items(), key=lambda e: e[1][1]):
+			if value[1] is not '':
+				high_dict_o[key] = value
+			else:
+				temp_dict[key] = value
+
+		for key, value in sorted(temp_dict.items(), key=lambda e: e[1][1]):
+			high_dict_o[key] = value
+
+		temp_dict.clear()
+
+		for key, value in sorted(completed_dict.items(), key=lambda e: e[1][1]):
+			if value[1] is not '':
+				completed_dict_o[key] = value
+			else:
+				temp_dict[key] = value
+
+		for key, value in temp_dict.items():
+			completed_dict_o[key] = value
+
+		temp_dict.clear()
+
+		del low_dict
+		del med_dict
+		del high_dict
+		del no_dict
+		del completed_dict
+
+
+		today = arrow.now()
+
+		for dict in [low_dict_o, med_dict_o, high_dict_o, no_dict_o, completed_dict_o]:
+			for key, value in dict.items():
+				if value[0] == 'L':
+					dict[key][0] = Fore.YELLOW + Style.BRIGHT + value[0].center(3) + Fore.RESET + Style.NORMAL
+				elif value[0] == 'M':
+					dict[key][0] = Fore.BLUE + Style.BRIGHT + value[0].center(3) + Fore.RESET + Style.NORMAL
+				elif value[0] == 'H':
+					dict[key][0] = Fore.RED + Style.BRIGHT + value[0].center(3) + Fore.RESET + Style.NORMAL
+				else:
+					dict[key][0] = ''
+
+				task = self.tasklist.find_task(key)
+				if task.due_date:
+					diff = arrow.get(task.due_date, task.due_date_format) - today
+					if diff.days >= 1 and diff.seconds > 0:
+						dict[key][1] = Fore.CYAN + Style.BRIGHT + value[1] + Fore.RESET + Style.NORMAL
+					elif diff.days >= 0:
+						dict[key][1] = Fore.BLUE + Style.BRIGHT + value[1] + Fore.RESET + Style.NORMAL
+					elif diff.days <= 0:
+						dict[key][1] = Fore.RED + Style.BRIGHT +  value[1] + Fore.RESET + Style.NORMAL
+
+
+
+
+
+
+		template = '{0:^3} {1:^3} {2:20} {3:15} {4:20} {5:20}'
 		print template.format('\nPri', 'ID', 'Due', 'Created', 'Description', 'Tags')
-		print template.format('---', '---', '--------------------', '--------------------', '--------------------',
+		print template.format('---', '---', '--------------------', '---------------', '--------------------',
 		                      '--------------------')
 
-		if len(high_dict) > 0:
-			for key in high_dict:
-				print template.format(high_dict[key][0], key, high_dict[key][1], high_dict[key][2], 
-				                      high_dict[key][3], high_dict[key][4])
-		if len(med_dict) > 0:
-			for key in med_dict:
-				print template.format(med_dict[key][0], key, med_dict[key][1], med_dict[key][2], 
-				                      med_dict[key][3], med_dict[key][4])
-		if len(low_dict) > 0:
-			for key in low_dict:
-				print template.format(low_dict[key][0], key, low_dict[key][1], low_dict[key][2], 
-				                      low_dict[key][3], low_dict[key][4])
-		if len(no_dict) > 0:
-			for key in no_dict:
-				print template.format(no_dict[key][0], key, no_dict[key][1], no_dict[key][2], 
-				                      no_dict[key][3], no_dict[key][4])
+		if len(high_dict_o) > 0:
+			for key in high_dict_o:
+				print template.format(high_dict_o[key][0], key, high_dict_o[key][1], high_dict_o[key][2], 
+				                      high_dict_o[key][3], high_dict_o[key][4])
+		if len(med_dict_o) > 0:
+			for key in med_dict_o:
+				print template.format(med_dict_o[key][0], key, med_dict_o[key][1], med_dict_o[key][2], 
+				                      med_dict_o[key][3], med_dict_o[key][4])
+		if len(low_dict_o) > 0:
+			for key in low_dict_o:
+				print template.format(low_dict_o[key][0], key, low_dict_o[key][1], low_dict_o[key][2], 
+				                      low_dict_o[key][3], low_dict_o[key][4])
+		if len(no_dict_o) > 0:
+			for key in no_dict_o:
+				print template.format(no_dict_o[key][0], key, no_dict_o[key][1], no_dict_o[key][2], 
+				                      no_dict_o[key][3], no_dict_o[key][4])
 		
-		completed_template = Fore.WHITE + Style.DIM + '{0:^3} {1:^3} {2:20} {3:20} {4:20} {5:20}' + Fore.RESET + Style.NORMAL
-		if len(completed_dict) > 0:
-			for key in completed_dict:
-				if completed_dict[key][0]:
-					priority = completed_dict[key][0]
+		completed_template = Fore.WHITE + Style.DIM + '{0:^3} {1:^3} {2:20} {3:15} {4:20} {5:20}' + Fore.RESET + Style.NORMAL
+		if len(completed_dict_o) > 0:
+			for key in completed_dict_o:
+				if completed_dict_o[key][0]:
+					priority = completed_dict_o[key][0]
 				else:
 					priority = ''
-				print completed_template.format(priority, key, completed_dict[key][1],
-				                                completed_dict[key][2], completed_dict[key][3], completed_dict[key][4])
+				print completed_template.format(priority, key, completed_dict_o[key][1],
+				                                completed_dict_o[key][2], completed_dict_o[key][3], completed_dict_o[key][4])
 		print self.legend
 
 	def show_task(self, task_id):
