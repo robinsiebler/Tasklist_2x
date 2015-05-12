@@ -129,7 +129,7 @@ class Functions:
 				if task.due_date is None:
 					due_date = ''
 				else:
-					if task.due_date_format:
+					if date_format:
 						due_date = task.due_date.rsplit(' ', 1)[0].ljust(20)
 					else:
 						due_date = (arrow.get(task.due_date, task.due_date_format).humanize()).ljust(20)
