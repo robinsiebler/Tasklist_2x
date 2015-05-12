@@ -8,6 +8,9 @@
 __author__ = 'Robin Siebler'
 __date__ = '5/6/15'
 
+# TODO: Fix it so that sorting by priority sorts by priority then due date
+# TODO: Need to sort the items -before- they are colored
+
 import arrow
 import platform
 import util
