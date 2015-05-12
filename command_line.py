@@ -100,9 +100,6 @@ def validate_args(docopt_args):
 				date_sep = '-'
 			elif '.' in docopt_args['-d']:
 				date_sep = '.'
-			else:
-				print '\nAn invalid date format was provided.\n'
-				sys.exit(-3)
 			date = docopt_args['-d'].split(date_sep)
 
 			if len(date[0]) == 1:
@@ -133,12 +130,10 @@ def validate_args(docopt_args):
 				except ParseException:
 					print '\nInvalid time format. Dropping Due Time.\n'
 				else:
-					#determine time format:
-					dtime = docopt_args['--time'].split(':')
-					hour = dtime[0]
-					minutes = dtime[1][:2]
-					period = dtime[1][-2:]
-					dtime = ':'.join([hour, minutes]) + ' ' + period + ' ' + str(offset)
+					#parse the date to make sure it is in the correct format:
+					dtime = docopt_args['--time'][:-2].strip()
+					period = docopt_args['--time'][-2:]
+					dtime = dtime + ' ' + period + ' ' + str(offset)
 					date = docopt_args['-d'] + ' ' + dtime
 			else:
 				date = docopt_args['-d'] + ' 11:59 PM ' + offset
