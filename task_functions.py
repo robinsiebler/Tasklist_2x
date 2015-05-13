@@ -8,9 +8,6 @@
 __author__ = 'Robin Siebler'
 __date__ = '5/6/15'
 
-# TODO: Fix it so that sorting by priority sorts by priority then due date
-# TODO: Need to sort the items -before- they are colored
-
 import arrow
 import platform
 import util
@@ -18,7 +15,7 @@ import util
 from tasklist import Task, TaskList
 from collections import OrderedDict
 
-from colorama import init, Fore, Back, Style
+from colorama import init, Fore, Style
 
 if platform.system() == 'Windows':
 	init()
@@ -74,7 +71,7 @@ class Functions:
 						elif diff.days >= 0:
 							due_date = Fore.BLUE + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
 						elif diff.days <= 0:
-							due_date = Fore.RED + Style.BRIGHT +  due_date + Fore.RESET + Style.NORMAL
+							due_date = Fore.RED + Style.BRIGHT + due_date + Fore.RESET + Style.NORMAL
 
 				if date_format:
 					age = (str(task.creation_date).split()[0]).ljust(15)  # drop the time zone
@@ -150,7 +147,6 @@ class Functions:
 				elif task.priority == 'H':
 					high_dict[task.id] = [task.priority, due_date, age, desc, task.tags]
 				else:
-					priority = ''
 					no_dict[task.id] = [task.priority, due_date, age, desc, task.tags]
 
 		else:
@@ -239,7 +235,7 @@ class Functions:
 					elif diff.days >= 0:
 						dict[key][1] = Fore.BLUE + Style.BRIGHT + value[1] + Fore.RESET + Style.NORMAL
 					elif diff.days <= 0:
-						dict[key][1] = Fore.RED + Style.BRIGHT +  value[1] + Fore.RESET + Style.NORMAL
+						dict[key][1] = Fore.RED + Style.BRIGHT + value[1] + Fore.RESET + Style.NORMAL
 
 		template = '{0:^3} {1:^3} {2:20} {3:15} {4:20} {5:20}'
 		print template.format('\nPri', 'ID', 'Due', 'Created', 'Description', 'Tags')
@@ -248,21 +244,21 @@ class Functions:
 
 		if len(high_dict_o) > 0:
 			for key in high_dict_o:
-				print template.format(high_dict_o[key][0], key, high_dict_o[key][1], high_dict_o[key][2], 
+				print template.format(high_dict_o[key][0], key, high_dict_o[key][1], high_dict_o[key][2],
 				                      high_dict_o[key][3], high_dict_o[key][4])
 		if len(med_dict_o) > 0:
 			for key in med_dict_o:
-				print template.format(med_dict_o[key][0], key, med_dict_o[key][1], med_dict_o[key][2], 
+				print template.format(med_dict_o[key][0], key, med_dict_o[key][1], med_dict_o[key][2],
 				                      med_dict_o[key][3], med_dict_o[key][4])
 		if len(low_dict_o) > 0:
 			for key in low_dict_o:
-				print template.format(low_dict_o[key][0], key, low_dict_o[key][1], low_dict_o[key][2], 
+				print template.format(low_dict_o[key][0], key, low_dict_o[key][1], low_dict_o[key][2],
 				                      low_dict_o[key][3], low_dict_o[key][4])
 		if len(no_dict_o) > 0:
 			for key in no_dict_o:
-				print template.format(no_dict_o[key][0], key, no_dict_o[key][1], no_dict_o[key][2], 
+				print template.format(no_dict_o[key][0], key, no_dict_o[key][1], no_dict_o[key][2],
 				                      no_dict_o[key][3], no_dict_o[key][4])
-		
+
 		completed_template = Fore.WHITE + Style.DIM + '{0:^3} {1:^3} {2:20} {3:15} {4:20} {5:20}' + Fore.RESET + Style.NORMAL
 		if len(completed_dict_o) > 0:
 			for key in completed_dict_o:
@@ -271,7 +267,8 @@ class Functions:
 				else:
 					priority = ''
 				print completed_template.format(priority, key, completed_dict_o[key][1],
-				                                completed_dict_o[key][2], completed_dict_o[key][3], completed_dict_o[key][4])
+				                                completed_dict_o[key][2], completed_dict_o[key][3],
+				                                completed_dict_o[key][4])
 		print self.legend
 
 	def show_task(self, task_id):
@@ -301,7 +298,7 @@ class Functions:
 	def search_tasks(self, search_string):
 		"""Search the task list for a task whose contents contains the user provided search string.
 
-		:param str search_string    the string to search for.
+		:param str search_string:    the string to search for.
 		"""
 
 		tasks = self.tasklist.search(search_string.lower())
@@ -324,7 +321,7 @@ class Functions:
 			self.tasklist.renumber_tasks()
 			print('Task ' + task_id + ' was deleted.')
 
-	def modify_task(self, task_id, task_=None, completed = False, priority=None, due_date=None, note=None, tags=None):
+	def modify_task(self, task_id, task_=None, completed=False, priority=None, due_date=None, note=None, tags=None):
 		"""Modify a task."""
 
 		task_id = self._validate_task_id(task_id)

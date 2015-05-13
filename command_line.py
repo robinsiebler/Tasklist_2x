@@ -122,14 +122,14 @@ def validate_args(docopt_args):
 			# parse the date
 			date_format = date_sep.join([month_format, day_format, year_format])
 			date_format = date_format + ' h:mm A Z'
-			if docopt_args.has_key('--time') and docopt_args['--time']:
+			if '--time' in docopt_args and docopt_args['--time']:
 				pattern = Regex('^ *(1[0-2]|[1-9]):[0-5][0-9] *(a|p|A|P)(m|M) *$')
 				try:
 					pattern.parseString(docopt_args['--time'])
 				except ParseException:
 					print '\nInvalid time format. Dropping Due Time.\n'
 				else:
-					#parse the date to make sure it is in the correct format:
+					# parse the date to make sure it is in the correct format:
 					dtime = docopt_args['--time'][:-2].strip()
 					period = docopt_args['--time'][-2:]
 					dtime = dtime + ' ' + period + ' ' + str(offset)
