@@ -131,7 +131,7 @@ class Functions:
 					else:
 						due_date = (arrow.get(task.due_date, task.due_date_format).humanize()).ljust(20)
 
-				age = (str(task.creation_date).split()[0]).ljust(20)  # drop the time zone
+				age = (str(task.creation_date).split()[0]).ljust(15)  # drop the time zone
 
 				if task.note:
 					desc = task.task + ' *'
