@@ -41,9 +41,9 @@ class Functions:
 
 		if len(tasks) > 0:
 
-			template = '{0:^3} {1:^3} {2:20} {3:15} {4:20} {5:20}'
-			print template.format('\nID', ' Pri', 'Due', 'Created', 'Description', 'Tags')
-			print template.format('---', '---', '--------------------', '---------------', '--------------------',
+			template = '{0:^3} {1:20} {2:^3} {3:20} {4:15} {5:20}'
+			print template.format('\nID', 'Description', ' Pri', 'Due', 'Created', 'Tags')
+			print template.format('---', '--------------------', '---', '--------------------', '---------------',
 			                      '--------------------')
 			for task in tasks:
 				if task.priority == 'L':
@@ -90,9 +90,9 @@ class Functions:
 						priority = ''
 					task_id = Fore.WHITE + Style.DIM + str(task.id).center(3)
 					tags = str(task.tags) + Fore.RESET + Style.NORMAL
-					print template.format(task_id, priority, due_date, age, desc, tags)
+					print template.format(task_id, desc, priority, due_date, age, tags)
 				else:
-					print template.format(task.id, priority, due_date, age, desc, task.tags)
+					print template.format(task.id, desc, priority, due_date, age, task.tags)
 
 			print self.legend
 		else:
@@ -237,38 +237,37 @@ class Functions:
 					elif diff.days <= 0:
 						dict[key][1] = Fore.RED + Style.BRIGHT + value[1] + Fore.RESET + Style.NORMAL
 
-		template = '{0:^3} {1:^3} {2:20} {3:15} {4:20} {5:20}'
-		print template.format('\nPri', 'ID', 'Due', 'Created', 'Description', 'Tags')
-		print template.format('---', '---', '--------------------', '---------------', '--------------------',
+		template = '{0:^3} {1:20} {2:^3} {3:20} {4:15} {5:20}'
+		print template.format('\nPri', 'Description', 'ID', 'Due', 'Created', 'Tags')
+		print template.format('---', '--------------------', '---', '--------------------', '---------------',
 		                      '--------------------')
 
 		if len(high_dict_o) > 0:
 			for key in high_dict_o:
-				print template.format(high_dict_o[key][0], key, high_dict_o[key][1], high_dict_o[key][2],
-				                      high_dict_o[key][3], high_dict_o[key][4])
+				print template.format(high_dict_o[key][0], high_dict_o[key][3], key, high_dict_o[key][1],
+				                      high_dict_o[key][2], high_dict_o[key][4])
 		if len(med_dict_o) > 0:
 			for key in med_dict_o:
-				print template.format(med_dict_o[key][0], key, med_dict_o[key][1], med_dict_o[key][2],
-				                      med_dict_o[key][3], med_dict_o[key][4])
+				print template.format(med_dict_o[key][0], med_dict_o[key][3], key, med_dict_o[key][1],
+				                      med_dict_o[key][2], med_dict_o[key][4])
 		if len(low_dict_o) > 0:
 			for key in low_dict_o:
-				print template.format(low_dict_o[key][0], key, low_dict_o[key][1], low_dict_o[key][2],
-				                      low_dict_o[key][3], low_dict_o[key][4])
+				print template.format(low_dict_o[key][0], low_dict_o[key][3], key, low_dict_o[key][1],
+				                      low_dict_o[key][2], low_dict_o[key][4])
 		if len(no_dict_o) > 0:
 			for key in no_dict_o:
-				print template.format(no_dict_o[key][0], key, no_dict_o[key][1], no_dict_o[key][2],
-				                      no_dict_o[key][3], no_dict_o[key][4])
+				print template.format(no_dict_o[key][0], no_dict_o[key][3], key, no_dict_o[key][1],
+				                      no_dict_o[key][2], no_dict_o[key][4])
 
-		completed_template = Fore.WHITE + Style.DIM + '{0:^3} {1:^3} {2:20} {3:15} {4:20} {5:20}' + Fore.RESET + Style.NORMAL
+		completed_template = Fore.WHITE + Style.DIM + '{0:^3} {1:20} {2:^3} {3:20} {4:15} {5:20}' + Fore.RESET + Style.NORMAL
 		if len(completed_dict_o) > 0:
 			for key in completed_dict_o:
 				if completed_dict_o[key][0]:
 					priority = completed_dict_o[key][0]
 				else:
 					priority = ''
-				print completed_template.format(priority, key, completed_dict_o[key][1],
-				                                completed_dict_o[key][2], completed_dict_o[key][3],
-				                                completed_dict_o[key][4])
+				print completed_template.format(priority, completed_dict_o[key][3], key, completed_dict_o[key][1],
+				                                completed_dict_o[key][2], completed_dict_o[key][4])
 		print self.legend
 
 	def show_task(self, task_id):
