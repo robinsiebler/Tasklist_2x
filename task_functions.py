@@ -13,9 +13,10 @@ import platform
 import util
 
 from tasklist import Task, TaskList
-from collections import OrderedDict
+#from collections import OrderedDict
+from sortedcontainers import SortedDict
 
-from colorama import init, Fore, Style
+from colorama import init, Fore, Back, Style
 
 if platform.system() == 'Windows':
 	init()
@@ -27,8 +28,8 @@ class Functions:
 
 		self.tasklist = TaskList()
 		self.legend = '\nLegend: Not Due  ' + Fore.CYAN + Style.BRIGHT + 'Upcoming  ' + Fore.BLUE + \
-		              Style.BRIGHT + 'Due  ' + Fore.RED + Style.BRIGHT + 'Overdue  ' + Fore.WHITE + Style.DIM + \
-		              'Completed' + Fore.RESET + Style.NORMAL
+		              Style.BRIGHT + 'Due  ' + Fore.RED + Style.BRIGHT + 'Overdue  ' + Fore.WHITE + Style.BRIGHT + \
+		              Back.WHITE + 'Completed' + Fore.RESET + Style.NORMAL + Back.RESET
 
 	def show_tasks(self, tasks=None, date_format=None):
 		"""Display the tasks (in ID order)
@@ -88,8 +89,8 @@ class Functions:
 						priority = task.priority
 					else:
 						priority = ''
-					task_id = Fore.WHITE + Style.DIM + str(task.id).center(3)
-					tags = str(task.tags) + Fore.RESET + Style.NORMAL
+					task_id = Fore.WHITE + Style.BRIGHT + Back.WHITE + str(task.id).center(3)
+					tags = str(task.tags) + Fore.RESET + Style.NORMAL + Back.RESET
 					print template.format(task_id, desc, priority, due_date, age, tags)
 				else:
 					print template.format(task.id, desc, priority, due_date, age, task.tags)
@@ -104,11 +105,20 @@ class Functions:
 		:param tasks: tasks object
 		"""
 
-		low_dict_o = OrderedDict()
-		med_dict_o = OrderedDict()
-		high_dict_o = OrderedDict()
-		no_dict_o = OrderedDict()
-		completed_dict_o = OrderedDict()
+		# low_dict_o = OrderedDict()
+		# med_dict_o = OrderedDict()
+		# high_dict_o = OrderedDict()
+		# no_dict_o = OrderedDict()
+		# completed_dict_o = OrderedDict()
+
+		low_dict_o = SortedDict()
+		med_dict_o = SortedDict()
+		high_dict_o = SortedDict()
+		no_dict_o = SortedDict()
+		completed_dict_o = SortedDict()
+
+
+
 
 		low_dict = {}
 		med_dict = {}
@@ -159,8 +169,8 @@ class Functions:
 			else:
 				temp_dict[key] = value
 
-		for key, value in temp_dict.items():
-			no_dict_o[key] = value
+		for key in temp_dict:
+			no_dict_o[key] = temp_dict[key]
 
 		temp_dict.clear()
 
@@ -216,14 +226,17 @@ class Functions:
 
 		today = arrow.now()
 
-		for dict in [low_dict_o, med_dict_o, high_dict_o, no_dict_o, completed_dict_o]:
+# TODO: Figure out why the key is a tuple instead of a list
+
+		for dict in [low_dict_o, med_dict_o, high_dict_o, no_dict_o]:
 			for key, value in dict.items():
+				dict[key] = list(dict[key])  # hack - how is this key a tuple!?!
 				if value[0] == 'L':
 					dict[key][0] = Fore.YELLOW + Style.BRIGHT + value[0].center(3) + Fore.RESET + Style.NORMAL
 				elif value[0] == 'M':
 					dict[key][0] = Fore.BLUE + Style.BRIGHT + value[0].center(3) + Fore.RESET + Style.NORMAL
 				elif value[0] == 'H':
-					dict[key][0] = Fore.RED + Style.BRIGHT + value[0].center(3) + Fore.RESET + Style.NORMAL
+					dict[key][0] =  Fore.RED + Style.BRIGHT + value[0].center(3) + Fore.RESET + Style.NORMAL
 				else:
 					dict[key][0] = ''
 
@@ -259,7 +272,8 @@ class Functions:
 				print template.format(no_dict_o[key][0], no_dict_o[key][3], key, no_dict_o[key][1],
 				                      no_dict_o[key][2], no_dict_o[key][4])
 
-		completed_template = Fore.WHITE + Style.DIM + '{0:^3} {1:20} {2:^3} {3:20} {4:15} {5:20}' + Fore.RESET + Style.NORMAL
+		completed_template = Fore.WHITE + Style.BRIGHT + Back.WHITE + '{0:^3} {1:20} {2:^3} {3:20} {4:15} {5:20}' + \
+		                     Fore.RESET + Style.NORMAL + Back.RESET
 		if len(completed_dict_o) > 0:
 			for key in completed_dict_o:
 				if completed_dict_o[key][0]:
