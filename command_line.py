@@ -85,7 +85,7 @@ def validate_args(docopt_args):
 
 	# validate date
 	if docopt_args['-d']:
-		pattern = Regex('^(1[0-2]|0?[1-9])(/|-|.)(3[01]|[12][0-9]|0?[1-9])(/|-|.)(?:[0-9]{2})?[0-9]{2}$')
+		pattern = Regex('^(1[0-2]|0?[1-9])(?P<Sep>(/|-|.))(3[01]|[12][0-9]|0?[1-9])(?P=Sep)(?:[0-9]{2})?[0-9]{2}$')
 		try:
 			pattern.parseString(docopt_args['-d'])
 		except ParseException:
