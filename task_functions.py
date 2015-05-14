@@ -13,8 +13,7 @@ import platform
 import util
 
 from tasklist import Task, TaskList
-#from collections import OrderedDict
-from sortedcontainers import SortedDict
+from collections import OrderedDict
 
 from colorama import init, Fore, Back, Style
 
@@ -105,20 +104,11 @@ class Functions:
 		:param tasks: tasks object
 		"""
 
-		# low_dict_o = OrderedDict()
-		# med_dict_o = OrderedDict()
-		# high_dict_o = OrderedDict()
-		# no_dict_o = OrderedDict()
-		# completed_dict_o = OrderedDict()
-
-		low_dict_o = SortedDict()
-		med_dict_o = SortedDict()
-		high_dict_o = SortedDict()
-		no_dict_o = SortedDict()
-		completed_dict_o = SortedDict()
-
-
-
+		low_dict_o = OrderedDict()
+		med_dict_o = OrderedDict()
+		high_dict_o = OrderedDict()
+		no_dict_o = OrderedDict()
+		completed_dict_o = OrderedDict()
 
 		low_dict = {}
 		med_dict = {}
