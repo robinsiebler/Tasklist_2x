@@ -13,7 +13,7 @@ import pytest
 
 from command_line import validate_args
 
-@pytest.fixture()
+@pytest.fixture
 def setup():
 	pass
 
@@ -87,28 +87,28 @@ def test_date_format_3():
 	assert docopt_args['-d'] == ['6.2.2015 7:30 PM -0800', 'M.D.YYYY h:mm A Z']
 
 
-# TODO: either re-write validate_args or figure out some way to make this test work... sys.exit() breaks the test
+def test_invalid_date_format(capsys):
+	"""Test that an invalid date format is caught."""
 
-# def test_invalid_date_format():
-# 	"""Test that an invalid date format is caught."""
-#
-# 	docopt_args = {'--time': None,
-#                '-a': True,
-#                '-c': False,
-#                '-d': '5-23.15',
-#                '-n': None,
-#                '-p': None,
-#                '-r': None,
-#                '-t': None,
-#                '<Search_String>': None,
-#                '<Task>': 'Sleep',
-#                '<Task_ID>': None,
-#                'display': False,
-#                'modify': False,
-#                'priority': False,
-#                'search': False
-#                }
-#
-# 	docopt_args = validate_args(docopt_args)
-# 	out, err = pytest.capsys.readouterr()
-# 	print err
+	docopt_args = {'--time': None,
+               '-a': True,
+               '-c': False,
+               '-d': '5-23.15',
+               '-n': None,
+               '-p': None,
+               '-r': None,
+               '-t': None,
+               '<Search_String>': None,
+               '<Task>': 'Sleep',
+               '<Task_ID>': None,
+               'display': False,
+               'modify': False,
+               'priority': False,
+               'search': False
+               }
+
+	with pytest.raises(SystemExit):
+		docopt_args = validate_args(docopt_args)
+	out, err = capsys.readouterr()
+	assert out == '\n5-23.15 is not a valid date\n\n'
+
