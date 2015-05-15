@@ -111,4 +111,3 @@ def test_invalid_date_format(capsys):
 		docopt_args = validate_args(docopt_args)
 	out, err = capsys.readouterr()
 	assert out == '\n5-23.15 is not a valid date\n\n'
-

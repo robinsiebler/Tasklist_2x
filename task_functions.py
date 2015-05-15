@@ -20,6 +20,9 @@ from colorama import init, Fore, Back, Style
 if platform.system() == 'Windows':
 	init()
 
+# TODO: Colors that work on the Mac don't work very well on Windows and vice versa
+# TODO: Add an ini file so the user can specify the colors to use. Point to the colorma
+# TODO: page for instructions
 
 class Functions:
 	def __init__(self):
