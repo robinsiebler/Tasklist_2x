@@ -327,7 +327,7 @@ class Functions:
 			self.tasklist.renumber_tasks()
 			print('Task ' + task_id + ' was deleted.')
 
-	def modify_task(self, task_id, task_=None, completed=False, priority=None, due_date=None, note=None, tags=None):
+	def modify_task(self, task_id, task_=None, completed=False, priority=None, due_date=None, note=None, tags=None, time=None):
 		"""Modify a task."""
 
 		task_id = self._validate_task_id(task_id)
@@ -349,6 +349,14 @@ class Functions:
 					task.note = note
 				elif tags:
 					task.tags = tags
+				elif time:
+					time_str = time.split(' ')[0]
+					time_hour, time_minute = time_str.split(':')
+					if 'PM' in time:
+						time_hour = int(time_hour) + 12
+					due_date = arrow.get(task.due_date, task.due_date_format)
+					due_date = due_date.replace(hour=time_hour, minute=int(time_minute))
+					task.due_date = due_date.format(task.due_date_format)
 				elif completed:
 					task.completed = True
 				print 'Modified task ' + str(task_id)

@@ -182,6 +182,8 @@ def main(docopt_args):
 			tasks.modify_task(docopt_args['<Task_ID>'], note=docopt_args['-n'])
 		elif docopt_args['-t']:
 			tasks.modify_task(docopt_args['<Task_ID>'], tags=docopt_args['-t'])
+		elif docopt_args['--time']:
+			tasks.modify_task(docopt_args['<Task_ID>'], time=docopt_args['--time'])
 	elif docopt_args['<Task>']:
 		if docopt_args['-p']:
 			if docopt_args['-d']:
