@@ -340,7 +340,11 @@ class Functions:
 				elif priority:
 					task.priority = priority
 				elif due_date:
-					task.due_date = due_date
+					if isinstance(due_date, list):
+						task.due_date = due_date[0]
+						task.due_date_format = due_date[1]
+					else:
+						task.due_date = due_date
 				elif note:
 					task.note = note
 				elif tags:
