@@ -11,7 +11,7 @@ __date__ = '7/14/13'
 # TODO: add unit tests
 import pytest
 
-from command_line import validate_args
+from tasks import validate_args
 
 @pytest.fixture
 def setup():

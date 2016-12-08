@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # ------------------------------------------
-# Name:     command_line
+# Name:     tasks
 # Purpose:  Handle command-line options.
 #
 # Author:   Robin Siebler
