@@ -3,7 +3,7 @@ My imitation of Task Warrior
 
 A simple command-line based task maanager.
 
-run 'commandline.py -h' for the complete help menu:
+run 'tasks.py -h' for the complete help menu:
 
 Usage: tasks.py command argument option
 
